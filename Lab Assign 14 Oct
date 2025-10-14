@@ -1,0 +1,94 @@
+import random
+
+# Function to split text into parts
+def split_len(text, size):
+    parts = []
+    for i in range(0, len(text), size):
+        parts.append(text[i:i + size])
+    return parts
+
+# Function to make a random key (Task 5)
+def make_random_key(length):
+    numbers = list(range(1, length + 1))
+    random.shuffle(numbers)
+    key = ""
+    for n in numbers:
+        key += str(n)
+    return key
+
+# Function to encode message (Tasks 1, 3, 4)
+def encode(key, plaintext):
+    # If user doesn't enters a key
+    if key == "":
+        key = make_random_key(len(plaintext))
+        print("Generated Key:", key)
+
+    # Add padding 
+    while len(plaintext) % len(key) != 0:
+        plaintext += " "
+
+    # Make a dictionary for order
+    order = {}
+    for i in range(len(key)):
+        order[int(key[i])] = i
+
+    ciphertext = ""
+
+    # Encoding
+    for num in sorted(order.keys()):
+        parts = split_len(plaintext, len(key))
+        for part in parts:
+            if order[num] < len(part):
+                ciphertext += part[order[num]]
+    return ciphertext
+
+# Function to decode message 
+def decode(key, ciphertext):
+    order = {}
+    for i in range(len(key)):
+        order[int(key[i])] = i
+
+    parts = split_len(ciphertext, len(key))
+    plaintext = ""
+
+    for part in parts:
+        temp = [""] * len(key)
+        j = 0
+        for num in sorted(order.keys()):
+            if j < len(part):
+                temp[order[num]] = part[j]
+                j += 1
+        plaintext += "".join(temp)
+    return plaintext.strip()
+
+# Main Menu
+def main():
+    while True:
+        print("\n--- Transposition Cipher ---")
+        print("1. Encode a message")
+        print("2. Decode a message")
+        print("3. Exit")
+
+        choice = input("Enter your choice (1/2/3): ")
+
+        if choice == "1":
+            text = input("Enter plaintext: ")
+            key = input("Enter key (or press Enter for random): ")
+            cipher = encode(key, text)
+            print("Ciphertext:", cipher)
+
+        elif choice == "2":
+            text = input("Enter ciphertext: ")
+            key = input("Enter key: ")
+            plain = decode(key, text)
+            print("Decoded Plaintext:", plain)
+
+        elif choice == "3":
+            print("Goodbye!")
+            break
+
+        else:
+            print("Invalid choice, please try again.")
+
+# Execution
+main()
